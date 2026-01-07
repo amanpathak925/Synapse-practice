@@ -117,6 +117,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/CETAS')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--CETAS\n-- CREATE EXTERNAL TABLE AS \n\n\nCREATE EXTERNAL TABLE revenue_cetas\nWITH\n(\n    LOCATION = 'cetas_revenue',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = PARQUET_FORMAT\n)\nAS\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/EXT_TABLE')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -182,7 +202,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "--EXTERNAL FILE FORMAT\n\nDROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n",
+					"query": "--EXTERNAL FILE FORMAT\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -229,17 +249,37 @@
 			"location": "centralindia"
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/CETAS')]",
+			"name": "[concat(parameters('workspaceName'), '/CETAS_SELECT')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "--CETAS\n-- CREATE EXTERNAL TABLE AS \n\n\nCREATE EXTERNAL TABLE revenue_cetas\nWITH\n(\n    LOCATION = 'cetas_revenue',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = PARQUET_FORMAT\n)\nAS\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n",
+					"query": "--DROP EXTERNAL TABLE revenue_cetas;\n\nCREATE EXTERNAL TABLE revenue_cetas\nWITH\n(\n    LOCATION = 'cetas_revenue/',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = PARQUET_FORMAT\n)\nAS\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n\n\n-- order of execution--\n--first data fetched from select query\n--create an external source folder\n-- then create the external on the created folder",
 					"metadata": {
 						"language": "sql"
 					},
 					"currentConnection": {
-						"databaseName": "master",
+						"databaseName": "demoserverless",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/VIEWS')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--VIEWS--\n\nCREATE VIEW REVENUE_VIEW\nAS \nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n\nSELECT * FROM REVENUE_VIEW;\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "demoserverless",
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
