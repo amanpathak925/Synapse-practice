@@ -187,6 +187,26 @@
 			},
 			"dependsOn": [],
 			"location": "centralindia"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ext_file_format')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--EXTERNAL FILE FORMAT\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ''\n    )\n);\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET\n);\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
 		}
 	]
 }
