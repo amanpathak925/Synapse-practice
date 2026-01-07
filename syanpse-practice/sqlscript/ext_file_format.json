@@ -2,7 +2,7 @@
 	"name": "ext_file_format",
 	"properties": {
 		"content": {
-			"query": "--EXTERNAL FILE FORMAT\n\n--DROP EXTERNAL FILE FORMAT CSV_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET\n);\n",
+			"query": "--EXTERNAL FILE FORMAT\n\nDROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n",
 			"metadata": {
 				"language": "sql"
 			},
