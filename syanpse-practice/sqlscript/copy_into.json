@@ -1,0 +1,17 @@
+{
+	"name": "copy_into",
+	"properties": {
+		"content": {
+			"query": "--DROP TABLE dbo.revenue_copy_demo;\n\nCREATE TABLE dbo.revenue_copy_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\n\nCOPY INTO dbo.revenue_copy_demo\n(\n    Dealer_ID 1,\n    Model_ID 2,\n    Branch_ID 3,\n    Date_ID 4,\n    Units_Sold 5,\n    Revenue 6\n)\nFROM 'https://sasynapsedemo.dfs.core.windows.net/enriched/cetas_revenue_2/'\nWITH\n(\n    FILE_TYPE = 'PARQUET',\n    CREDENTIAL = (IDENTITY = 'Managed Identity')\n);\n\nSELECT * FROM dbo.revenue_copy_demo;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "amandedicatedpool",
+				"poolName": "amandedicatedpool"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
