@@ -137,6 +137,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/CETAS_SELECT')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--CETAS\n--CREATE EXTERNAL TABLE AS SELECT\n\n--DROP EXTERNAL TABLE revenue_cetas;\n\nCREATE EXTERNAL TABLE revenue_cetas_2\nWITH\n(\n    LOCATION = 'cetas_revenue_2/',\n    DATA_SOURCE = enriched_ext_source,\n    FILE_FORMAT = PARQUET_FORMAT\n)\nAS\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n\nSELECT * FROM revenue_cetas_2;\n\n\n-- order of execution--\n--first data fetched from select query\n--create an external source folder\n-- then create the external table on the created folder",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "demoserverless",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/EXT_TABLE')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -177,84 +197,12 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/demo-distributed-tables')]",
+			"name": "[concat(parameters('workspaceName'), '/Scenario')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "-- ROUND ROBIN TABLE\n\nCREATE table round_table\n(\n    Id INT,\n    Name varchar(4000),\n    Salary INT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\nSELECT * FROM round_table;\n\n--REPLICATE TABLE\n\nCREATE SCHEMA gold;\n\ncreate table gold.dim_product\n(\n    dim_key_product INT,\n    product_id INT,\n    product_name varchar(4000)\n)\nWITH\n(\n    DISTRIBUTION = REPLICATE\n);\n\n--HASH TABLE\n\nCREATE TABLE gold.fact_table\n(\n    dim_key_product INT,\n    Revenue INT,\n    Cost INT\n)\nWITH\n(\n    DISTRIBUTION = HASH(dim_key_product)\n);\n",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "amandedicatedpool",
-						"poolName": "amandedicatedpool"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/ext_file_format')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "--EXTERNAL FILE FORMAT\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "demoserverless",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/serverlessScript-openrowset')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD ='password';\n\n-- CREATE CREDENTIAL\n\nCREATE DATABASE SCOPED CREDENTIAL SynapseCreds\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds\n);\n\n--https://sasynapsedemo.blob.core.windows.net/raw\n\n--OPENROWSET FUNCTION\n\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "demoserverless",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/amandedicatedpool')]",
-			"type": "Microsoft.Synapse/workspaces/sqlPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"collation": "SQL_Latin1_General_CP1_CI_AS",
-				"maxSizeBytes": 263882790666240,
-				"annotations": []
-			},
-			"dependsOn": [],
-			"location": "centralindia"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/CETAS_SELECT')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "--DROP EXTERNAL TABLE revenue_cetas;\n\nCREATE EXTERNAL TABLE revenue_cetas\nWITH\n(\n    LOCATION = 'cetas_revenue/',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = PARQUET_FORMAT\n)\nAS\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n\nSELECT * FROM revenue_cetas;\n\n\n-- order of execution--\n--first data fetched from select query\n--create an external source folder\n-- then create the external on the created folder",
+					"query": "CREATE EXTERNAL TABLE revenue_2\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold VARCHAR(4000),\n    Revenue VARCHAR(4000)\n)\nWITH\n(\n    LOCATION = 'revenue2.revenue_star.csv',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = CSV_FORMAT\n\n);\n\nselect * from revenue_2;",
 					"metadata": {
 						"language": "sql"
 					},
@@ -289,18 +237,130 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/Scenario')]",
+			"name": "[concat(parameters('workspaceName'), '/demo-distributed-tables')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "CREATE EXTERNAL TABLE revenue_2\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold VARCHAR(4000),\n    Revenue VARCHAR(4000)\n)\nWITH\n(\n    LOCATION = 'revenue2.revenue_star.csv',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = CSV_FORMAT\n\n);\n\nselect * from revenue_2;",
+					"query": "-- ROUND ROBIN TABLE\n\nCREATE table round_table\n(\n    Id INT,\n    Name varchar(4000),\n    Salary INT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\nSELECT * FROM round_table;\n\n--REPLICATE TABLE\n\nCREATE SCHEMA gold;\n\ncreate table gold.dim_product\n(\n    dim_key_product INT,\n    product_id INT,\n    product_name varchar(4000)\n)\nWITH\n(\n    DISTRIBUTION = REPLICATE\n);\n\n--HASH TABLE\n\nCREATE TABLE gold.fact_table\n(\n    dim_key_product INT,\n    Revenue INT,\n    Cost INT\n)\nWITH\n(\n    DISTRIBUTION = HASH(dim_key_product)\n);\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ext_file_format')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--so far we have used openrowset to access the external data \n--but we are not creating any physical table or entity\n--so if you want to access any particular external data again and again or from multiple locations then you have to use the openrowset function again and again\n--it's always better to have a external table if we have any such use case\n\n\n--EXTERNAL FILE FORMAT\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n",
 					"metadata": {
 						"language": "sql"
 					},
 					"currentConnection": {
 						"databaseName": "demoserverless",
 						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/serverlessScript-openrowset')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD ='password';\n\n-- CREATE CREDENTIAL\n\nCREATE DATABASE SCOPED CREDENTIAL SynapseCreds\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds\n);\n\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/enriched',\n    CREDENTIAL = SynapseCreds\n);\n\n--https://sasynapsedemo.blob.core.windows.net/raw\n\n--OPENROWSET FUNCTION\n\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "demoserverless",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/amandedicatedpool')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralindia"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/EXTERNAL_RESOURCES_DEDICATED')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE DATABASE SCOPED CREDENTIAL SynapseCreds_dedicated\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/enriched',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated_acfss\nWITH\n(\n    LOCATION = 'abfss://enriched@sasynapsedemo.dfs.core.windows.net/',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT_DEDICATED\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/copy_into')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--DROP TABLE dbo.revenue_copy_demo;\n\nCREATE TABLE dbo.revenue_copy_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\n\nCOPY INTO dbo.revenue_copy_demo\n(\n    Dealer_ID 1,\n    Model_ID 2,\n    Branch_ID 3,\n    Date_ID 4,\n    Units_Sold 5,\n    Revenue 6\n)\nFROM 'https://sasynapsedemo.dfs.core.windows.net/enriched/cetas_revenue_2/'\nWITH\n(\n    FILE_TYPE = 'PARQUET',\n    CREDENTIAL = (IDENTITY = 'Managed Identity')\n);\n\nSELECT * FROM dbo.revenue_copy_demo;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/external_dedicated')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE EXTERNAL TABLE revenue_ext_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    LOCATION = 'cetas_revenue_2',\n    DATA_SOURCE = enriched_ext_source_dedicated_acfss,\n    FILE_FORMAT = PARQUET_FORMAT_DEDICATED\n);\n\nselect * from revenue_ext_demo;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
 					},
 					"resultLimit": 5000
 				},
