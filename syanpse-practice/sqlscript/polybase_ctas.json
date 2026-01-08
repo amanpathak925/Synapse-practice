@@ -1,0 +1,17 @@
+{
+	"name": "polybase_ctas",
+	"properties": {
+		"content": {
+			"query": "CREATE TABLE poly_table\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n)\nAS\nSELECT * FROM revenue_ext_demo;\n\nSELECT * FROM poly_table;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "amandedicatedpool",
+				"poolName": "amandedicatedpool"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
