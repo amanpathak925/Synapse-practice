@@ -157,6 +157,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/EXTERNAL_RESOURCES_DEDICATED')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE DATABASE SCOPED CREDENTIAL SynapseCreds_dedicated\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/enriched',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated_acfss\nWITH\n(\n    LOCATION = 'abfss://enriched@sasynapsedemo.dfs.core.windows.net/',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT_DEDICATED\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/EXT_TABLE')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -237,6 +257,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/copy_into')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "--DROP TABLE dbo.revenue_copy_demo;\n\nCREATE TABLE dbo.revenue_copy_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\n\nCOPY INTO dbo.revenue_copy_demo\n(\n    Dealer_ID 1,\n    Model_ID 2,\n    Branch_ID 3,\n    Date_ID 4,\n    Units_Sold 5,\n    Revenue 6\n)\nFROM 'https://sasynapsedemo.dfs.core.windows.net/enriched/cetas_revenue_2/'\nWITH\n(\n    FILE_TYPE = 'PARQUET',\n    CREDENTIAL = (IDENTITY = 'Managed Identity')\n);\n\nSELECT * FROM dbo.revenue_copy_demo;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/demo-distributed-tables')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -277,6 +317,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/external_dedicated')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE EXTERNAL TABLE revenue_ext_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    LOCATION = 'cetas_revenue_2',\n    DATA_SOURCE = enriched_ext_source_dedicated_acfss,\n    FILE_FORMAT = PARQUET_FORMAT_DEDICATED\n);\n\nselect * from revenue_ext_demo;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/serverlessScript-openrowset')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -297,6 +357,31 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SynpSparkPool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": false,
+					"maxNodeCount": 5,
+					"minNodeCount": 3
+				},
+				"nodeCount": 3,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.5",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralindia"
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/amandedicatedpool')]",
 			"type": "Microsoft.Synapse/workspaces/sqlPools",
 			"apiVersion": "2019-06-01-preview",
@@ -309,52 +394,12 @@
 			"location": "centralindia"
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/EXTERNAL_RESOURCES_DEDICATED')]",
+			"name": "[concat(parameters('workspaceName'), '/polybase_ctas')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "CREATE DATABASE SCOPED CREDENTIAL SynapseCreds_dedicated\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/enriched',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated_acfss\nWITH\n(\n    LOCATION = 'abfss://enriched@sasynapsedemo.dfs.core.windows.net/',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT_DEDICATED\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "amandedicatedpool",
-						"poolName": "amandedicatedpool"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/copy_into')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "--DROP TABLE dbo.revenue_copy_demo;\n\nCREATE TABLE dbo.revenue_copy_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\n\nCOPY INTO dbo.revenue_copy_demo\n(\n    Dealer_ID 1,\n    Model_ID 2,\n    Branch_ID 3,\n    Date_ID 4,\n    Units_Sold 5,\n    Revenue 6\n)\nFROM 'https://sasynapsedemo.dfs.core.windows.net/enriched/cetas_revenue_2/'\nWITH\n(\n    FILE_TYPE = 'PARQUET',\n    CREDENTIAL = (IDENTITY = 'Managed Identity')\n);\n\nSELECT * FROM dbo.revenue_copy_demo;",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "amandedicatedpool",
-						"poolName": "amandedicatedpool"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/external_dedicated')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "CREATE EXTERNAL TABLE revenue_ext_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    LOCATION = 'cetas_revenue_2',\n    DATA_SOURCE = enriched_ext_source_dedicated_acfss,\n    FILE_FORMAT = PARQUET_FORMAT_DEDICATED\n);\n\nselect * from revenue_ext_demo;",
+					"query": "CREATE TABLE poly_table\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n)\nAS\nSELECT * FROM revenue_ext_demo;\n\nSELECT * FROM poly_table;",
 					"metadata": {
 						"language": "sql"
 					},
