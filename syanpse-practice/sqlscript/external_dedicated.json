@@ -1,0 +1,17 @@
+{
+	"name": "external_dedicated",
+	"properties": {
+		"content": {
+			"query": "CREATE EXTERNAL TABLE revenue_ext_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    LOCATION = 'cetas_revenue_2',\n    DATA_SOURCE = enriched_ext_source_dedicated_acfss,\n    FILE_FORMAT = PARQUET_FORMAT_DEDICATED\n);\n\nselect * from revenue_ext_demo;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "amandedicatedpool",
+				"poolName": "amandedicatedpool"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

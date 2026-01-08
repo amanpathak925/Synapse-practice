@@ -2,7 +2,7 @@
 	"name": "EXTERNAL_RESOURCES_DEDICATED",
 	"properties": {
 		"content": {
-			"query": "CREATE DATABASE SCOPED CREDENTIAL SynapseCreds_dedicated\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/enriched',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT_DEDICATED\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
+			"query": "CREATE DATABASE SCOPED CREDENTIAL SynapseCreds_dedicated\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/enriched',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\nCREATE EXTERNAL DATA SOURCE enriched_ext_source_dedicated_acfss\nWITH\n(\n    LOCATION = 'abfss://enriched@sasynapsedemo.dfs.core.windows.net/',\n    CREDENTIAL = SynapseCreds_dedicated\n);\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT_DEDICATED\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
 			"metadata": {
 				"language": "sql"
 			},
