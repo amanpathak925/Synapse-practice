@@ -1,0 +1,17 @@
+{
+	"name": "serverlessScript-openrowset",
+	"properties": {
+		"content": {
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD ='password';\n\n-- CREATE CREDENTIAL\n\nCREATE DATABASE SCOPED CREDENTIAL SynapseCreds\nWITH\n    IDENTITY = 'Managed Identity';\n\n-- EXTERNAL DATA SOURCE\n\nCREATE EXTERNAL DATA SOURCE raw_ext_source\nWITH\n(\n    LOCATION = 'https://sasynapsedemo.dfs.core.windows.net/raw',\n    CREDENTIAL = SynapseCreds\n);\n\n--https://sasynapsedemo.blob.core.windows.net/raw\n\n--OPENROWSET FUNCTION\n\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "demoserverless",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

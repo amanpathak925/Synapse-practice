@@ -1,0 +1,17 @@
+{
+	"name": "ext_file_format",
+	"properties": {
+		"content": {
+			"query": "--so far we have used openrowset to access the external data \n--but we are not creating any physical table or entity\n--so if you want to access any particular external data again and again or from multiple locations then you have to use the openrowset function again and again\n--it's always better to have a external table if we have any such use case\n\n\n--EXTERNAL FILE FORMAT\n\n--DROP EXTERNAL FILE FORMAT PARQUET_FORMAT;\n\nCREATE EXTERNAL FILE FORMAT CSV_FORMAT\nWITH\n(\n    FORMAT_TYPE = DELIMITEDTEXT,\n    FORMAT_OPTIONS\n    (\n        FIELD_TERMINATOR = ',',\n        STRING_DELIMITER = '\"',\n        FIRST_ROW = 2\n    )\n);\n\n\nCREATE EXTERNAL FILE FORMAT PARQUET_FORMAT\nWITH\n(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "demoserverless",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "SQL_openrowset",
+	"properties": {
+		"content": {
+			"query": "SELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n\n\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/titanic.parquet',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'PARQUET'\n) AS QUERY2;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "demoserverless",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

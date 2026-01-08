@@ -1,0 +1,17 @@
+{
+	"name": "CETAS_SELECT",
+	"properties": {
+		"content": {
+			"query": "--DROP EXTERNAL TABLE revenue_cetas;\n\nCREATE EXTERNAL TABLE revenue_cetas\nWITH\n(\n    LOCATION = 'cetas_revenue/',\n    DATA_SOURCE = raw_ext_source,\n    FILE_FORMAT = PARQUET_FORMAT\n)\nAS\nSELECT * FROM\nOPENROWSET\n(\n    BULK 'revenue/revenue_star.csv',\n    DATA_SOURCE = 'raw_ext_source',\n    FORMAT = 'CSV',\n    PARSER_VERSION = '2.0',\n    HEADER_ROW = TRUE\n) AS QUERY1;\n\nSELECT * FROM revenue_cetas;\n\n\n-- order of execution--\n--first data fetched from select query\n--create an external source folder\n-- then create the external on the created folder",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "demoserverless",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
