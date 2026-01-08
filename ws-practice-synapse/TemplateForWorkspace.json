@@ -19,6 +19,10 @@
 		"ws-practice-synapse-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://saazurepractice07.dfs.core.windows.net"
+		},
+		"event_trigger_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/8769c5f8-5236-4604-adea-b1ffa8744449/resourceGroups/rg_azure_practice/providers/Microsoft.Storage/storageAccounts/sasynapsedemo"
 		}
 	},
 	"variables": {
@@ -575,6 +579,37 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/notebooks/Notebook-Spark')]",
 				"[concat(variables('workspaceId'), '/bigDataPools/SynpSparkPool')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/event_trigger')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_synapse_spark_demo",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/raw/blobs/people/",
+					"blobPathEndsWith": ".csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('event_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_synapse_spark_demo')]"
 			]
 		}
 	]
