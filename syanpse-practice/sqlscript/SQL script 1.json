@@ -1,8 +1,8 @@
 {
-	"name": "polybase_ctas",
+	"name": "SQL script 1",
 	"properties": {
 		"content": {
-			"query": "--CTAS\n--CREATE TABLE AS SELECT\n\n\nCREATE TABLE poly_table\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n)\nAS\nSELECT * FROM revenue_ext_demo;\n\nSELECT * FROM poly_table;",
+			"query": "SELECT TOP (100) [Dealer_ID]\n,[Model_ID]\n,[Branch_ID]\n,[Date_ID]\n,[Units_Sold]\n,[Revenue]\n FROM [dbo].[poly_table]",
 			"metadata": {
 				"language": "sql"
 			},
