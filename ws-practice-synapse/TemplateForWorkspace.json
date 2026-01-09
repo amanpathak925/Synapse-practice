@@ -30,6 +30,55 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('workspaceName'), '/pl_synapse_spark_demo')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "notebook-synapse-demo",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 1,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "Notebook-Spark",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "SynpSparkPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": false
+							},
+							"driverSize": "Small",
+							"authentication": {
+								"type": "MSI"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/Notebook-Spark')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/SynpSparkPool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ls_extdatalake')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -89,6 +138,37 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/event_trigger')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_synapse_spark_demo",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/raw/blobs/people/",
+					"blobPathEndsWith": ".csv",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('event_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/pl_synapse_spark_demo')]"
 			]
 		},
 		{
@@ -266,7 +346,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "--DROP TABLE dbo.revenue_copy_demo;\n\nCREATE TABLE dbo.revenue_copy_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\n\nCOPY INTO dbo.revenue_copy_demo\n(\n    Dealer_ID 1,\n    Model_ID 2,\n    Branch_ID 3,\n    Date_ID 4,\n    Units_Sold 5,\n    Revenue 6\n)\nFROM 'https://sasynapsedemo.dfs.core.windows.net/enriched/cetas_revenue_2/'\nWITH\n(\n    FILE_TYPE = 'PARQUET',\n    CREDENTIAL = (IDENTITY = 'Managed Identity')\n);\n\nSELECT * FROM dbo.revenue_copy_demo;",
+					"query": "--DROP TABLE dbo.revenue_copy_demo;\n\nCREATE TABLE dbo.revenue_copy_demo\n(\n    Dealer_ID VARCHAR(4000),\n    Model_ID VARCHAR(4000),\n    Branch_ID VARCHAR(4000),\n    Date_ID VARCHAR(4000),\n    Units_Sold BIGINT,\n    Revenue BIGINT\n)\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n);\n\n\nCOPY INTO dbo.revenue_copy_demo\n(\n    Dealer_ID 1,\n    Model_ID 2,\n    Branch_ID 3,\n    Date_ID 4,\n    Units_Sold 5,\n    Revenue 8\n)\nFROM 'https://sasynapsedemo.dfs.core.windows.net/enriched/cetas_revenue_2/'\nWITH\n(\n    FILE_TYPE = 'PARQUET',\n    CREDENTIAL = (IDENTITY = 'Managed Identity')\n);\n\nSELECT * FROM dbo.revenue_copy_demo;",
 					"metadata": {
 						"language": "sql"
 					},
@@ -346,7 +426,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"content": {
-					"query": "CREATE TABLE poly_table\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n)\nAS\nSELECT * FROM revenue_ext_demo;\n\nSELECT * FROM poly_table;",
+					"query": "--CTAS\n--CREATE TABLE AS SELECT\n\n\nCREATE TABLE poly_table\nWITH\n(\n    DISTRIBUTION = ROUND_ROBIN\n)\nAS\nSELECT * FROM revenue_ext_demo;\n\nSELECT * FROM poly_table;",
 					"metadata": {
 						"language": "sql"
 					},
@@ -533,84 +613,24 @@
 			"location": "centralindia"
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/pl_synapse_spark_demo')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"activities": [
-					{
-						"name": "notebook-synapse-demo",
-						"type": "SynapseNotebook",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.00:10:00",
-							"retry": 1,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebook": {
-								"referenceName": "Notebook-Spark",
-								"type": "NotebookReference"
-							},
-							"snapshot": true,
-							"sparkPool": {
-								"referenceName": "SynpSparkPool",
-								"type": "BigDataPoolReference"
-							},
-							"executorSize": "Small",
-							"conf": {
-								"spark.dynamicAllocation.enabled": false
-							},
-							"driverSize": "Small",
-							"authentication": {
-								"type": "MSI"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
+				"content": {
+					"query": "SELECT TOP (100) [Dealer_ID]\n,[Model_ID]\n,[Branch_ID]\n,[Date_ID]\n,[Units_Sold]\n,[Revenue]\n FROM [dbo].[poly_table]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
+					},
+					"resultLimit": 5000
 				},
-				"annotations": []
+				"type": "SqlQuery"
 			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/notebooks/Notebook-Spark')]",
-				"[concat(variables('workspaceId'), '/bigDataPools/SynpSparkPool')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/event_trigger')]",
-			"type": "Microsoft.Synapse/workspaces/triggers",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl_synapse_spark_demo",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/raw/blobs/people/",
-					"blobPathEndsWith": ".csv",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('event_trigger_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/pl_synapse_spark_demo')]"
-			]
+			"dependsOn": []
 		}
 	]
 }
