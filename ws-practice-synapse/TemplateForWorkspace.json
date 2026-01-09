@@ -146,7 +146,7 @@
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -273,6 +273,26 @@
 					"currentConnection": {
 						"databaseName": "demoserverless",
 						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT TOP (100) [Dealer_ID]\n,[Model_ID]\n,[Branch_ID]\n,[Date_ID]\n,[Units_Sold]\n,[Revenue]\n FROM [dbo].[poly_table]",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "amandedicatedpool",
+						"poolName": "amandedicatedpool"
 					},
 					"resultLimit": 5000
 				},
@@ -585,8 +605,8 @@
 					"delayInMinutes": 15
 				},
 				"autoScale": {
-					"enabled": false,
-					"maxNodeCount": 5,
+					"enabled": true,
+					"maxNodeCount": 10,
 					"minNodeCount": 3
 				},
 				"nodeCount": 3,
@@ -611,26 +631,6 @@
 			},
 			"dependsOn": [],
 			"location": "centralindia"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"content": {
-					"query": "SELECT TOP (100) [Dealer_ID]\n,[Model_ID]\n,[Branch_ID]\n,[Date_ID]\n,[Units_Sold]\n,[Revenue]\n FROM [dbo].[poly_table]",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "amandedicatedpool",
-						"poolName": "amandedicatedpool"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
 		}
 	]
 }
