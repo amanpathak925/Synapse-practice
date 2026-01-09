@@ -26,6 +26,55 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('workspaceName'), '/pl_synapse_notebook')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Notebook_demo",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 1,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "spark-demo-synapse",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "wssparkpool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": false
+							},
+							"driverSize": "Small",
+							"authentication": {
+								"type": "MSI"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/spark-demo-synapse')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/wssparkpool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ls_extdatalake')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -397,6 +446,94 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/spark-demo-synapse')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "wssparkpool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "0440aa12-f239-4cc8-8329-4a409f7dabfd"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/8769c5f8-5236-4604-adea-b1ffa8744449/resourceGroups/rg_azure_practice/providers/Microsoft.Synapse/workspaces/ws-practice-synapse/bigDataPools/wssparkpool",
+						"name": "wssparkpool",
+						"type": "Spark",
+						"endpoint": "https://ws-practice-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/wssparkpool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.5",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"from pyspark.sql import SparkSession\n",
+							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType\n",
+							"\n",
+							"# Sample data\n",
+							"data = [\n",
+							"    (1, \"John\", \"Doe\", 28),\n",
+							"    (2, \"Jane\", \"Smith\", 35),\n",
+							"    (3, \"Aman\", \"Verma\", 30),\n",
+							"    (4, \"Rahul\", \"Mehta\", 42),\n",
+							"    (5, \"Sneha\", \"Sharma\", 26)\n",
+							"]\n",
+							"\n",
+							"# Schema\n",
+							"schema = StructType([\n",
+							"    StructField(\"id\", IntegerType(), True),\n",
+							"    StructField(\"first_name\", StringType(), True),\n",
+							"    StructField(\"last_name\", StringType(), True),\n",
+							"    StructField(\"age\", IntegerType(), True)\n",
+							"])\n",
+							"\n",
+							"# Create DataFrame\n",
+							"df = spark.createDataFrame(data, schema)\n",
+							"\n",
+							"# Show data\n",
+							"df.show()\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 1
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SynpSparkPool')]",
 			"type": "Microsoft.Synapse/workspaces/bigDataPools",
 			"apiVersion": "2019-06-01-preview",
@@ -457,108 +594,6 @@
 			},
 			"dependsOn": [],
 			"location": "centralindia"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/spark-demo-synapse')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "wssparkpool",
-					"type": "BigDataPoolReference"
-				},
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "fbff289d-52f7-4e10-bc05-6e3f37188175"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/8769c5f8-5236-4604-adea-b1ffa8744449/resourceGroups/rg_azure_practice/providers/Microsoft.Synapse/workspaces/ws-practice-synapse/bigDataPools/wssparkpool",
-						"name": "wssparkpool",
-						"type": "Spark",
-						"endpoint": "https://ws-practice-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/wssparkpool",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net"
-						},
-						"sparkVersion": "3.5",
-						"nodeCount": 3,
-						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
-					{
-						"cell_type": "code",
-						"metadata": {},
-						"source": [
-							"from pyspark.sql import SparkSession\n",
-							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType\n",
-							"\n",
-							"# Sample data\n",
-							"data = [\n",
-							"    (1, \"John\", \"Doe\", 28),\n",
-							"    (2, \"Jane\", \"Smith\", 35),\n",
-							"    (3, \"Aman\", \"Verma\", 30),\n",
-							"    (4, \"Rahul\", \"Mehta\", 42),\n",
-							"    (5, \"Sneha\", \"Sharma\", 26)\n",
-							"]\n",
-							"\n",
-							"# Schema\n",
-							"schema = StructType([\n",
-							"    StructField(\"id\", IntegerType(), True),\n",
-							"    StructField(\"first_name\", StringType(), True),\n",
-							"    StructField(\"last_name\", StringType(), True),\n",
-							"    StructField(\"age\", IntegerType(), True)\n",
-							"])\n",
-							"\n",
-							"# Create DataFrame\n",
-							"df = spark.createDataFrame(data, schema)\n",
-							"\n",
-							"# Show data\n",
-							"df.show()\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 1
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": []
 		}
 	]
 }
