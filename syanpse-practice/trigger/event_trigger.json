@@ -2,15 +2,8 @@
 	"name": "event_trigger",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
-		"pipelines": [
-			{
-				"pipelineReference": {
-					"referenceName": "pl_synapse_spark_demo",
-					"type": "PipelineReference"
-				}
-			}
-		],
+		"runtimeState": "Started",
+		"pipelines": [],
 		"type": "BlobEventsTrigger",
 		"typeProperties": {
 			"blobPathBeginsWith": "/raw/blobs/people/",
