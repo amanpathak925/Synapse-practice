@@ -462,11 +462,12 @@
 					"executorMemory": "28g",
 					"executorCores": 4,
 					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": true,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "6b8e0b00-5a1f-47f0-91fd-52832c6f57e8"
+						"spark.autotune.trackingId": "eec95c8f-b82c-45b5-bc1e-379b60ef108a"
 					}
 				},
 				"metadata": {
@@ -520,7 +521,7 @@
 							"print(\"Total records read:\", df.count())"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
