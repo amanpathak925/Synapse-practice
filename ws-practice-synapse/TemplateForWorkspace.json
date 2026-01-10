@@ -467,7 +467,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "eec95c8f-b82c-45b5-bc1e-379b60ef108a"
+						"spark.autotune.trackingId": "1272ec0d-be0d-4be3-bb7e-b3579bbe1ac4"
 					}
 				},
 				"metadata": {
@@ -521,7 +521,7 @@
 							"print(\"Total records read:\", df.count())"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
