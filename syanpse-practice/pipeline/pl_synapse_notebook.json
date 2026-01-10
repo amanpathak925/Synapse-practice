@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "spark-demo-synapse",
+						"referenceName": "Notebook2",
 						"type": "NotebookReference"
 					},
 					"snapshot": true,
