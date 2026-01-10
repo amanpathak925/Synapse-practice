@@ -446,158 +446,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/spark-demo-synapse')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "wssparkpool",
-					"type": "BigDataPoolReference"
-				},
-				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
-					"numExecutors": 2,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "d0dfd052-b296-4acb-89ba-129256b68ff3"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/8769c5f8-5236-4604-adea-b1ffa8744449/resourceGroups/rg_azure_practice/providers/Microsoft.Synapse/workspaces/ws-practice-synapse/bigDataPools/wssparkpool",
-						"name": "wssparkpool",
-						"type": "Spark",
-						"endpoint": "https://ws-practice-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/wssparkpool",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net"
-						},
-						"sparkVersion": "3.5",
-						"nodeCount": 3,
-						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
-					{
-						"cell_type": "code",
-						"metadata": {},
-						"source": [
-							"from pyspark.sql import SparkSession\n",
-							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType\n",
-							"\n",
-							"# Sample data\n",
-							"data = [\n",
-							"    (1, \"John\", \"Doe\", 28),\n",
-							"    (2, \"Jane\", \"Smith\", 35),\n",
-							"    (3, \"Aman\", \"Verma\", 30),\n",
-							"    (4, \"Rahul\", \"Mehta\", 42),\n",
-							"    (5, \"Sneha\", \"Sharma\", 26)\n",
-							"]\n",
-							"\n",
-							"# Schema\n",
-							"schema = StructType([\n",
-							"    StructField(\"id\", IntegerType(), True),\n",
-							"    StructField(\"first_name\", StringType(), True),\n",
-							"    StructField(\"last_name\", StringType(), True),\n",
-							"    StructField(\"age\", IntegerType(), True)\n",
-							"])\n",
-							"\n",
-							"# Create DataFrame\n",
-							"df = spark.createDataFrame(data, schema)\n",
-							"\n",
-							"# Show data\n",
-							"df.show()\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 1
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/SynpSparkPool')]",
-			"type": "Microsoft.Synapse/workspaces/bigDataPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"autoPause": {
-					"enabled": true,
-					"delayInMinutes": 15
-				},
-				"autoScale": {
-					"enabled": true,
-					"maxNodeCount": 10,
-					"minNodeCount": 3
-				},
-				"nodeCount": 3,
-				"nodeSize": "Small",
-				"nodeSizeFamily": "MemoryOptimized",
-				"sparkVersion": "3.5",
-				"isComputeIsolationEnabled": false,
-				"sessionLevelPackagesEnabled": false,
-				"annotations": []
-			},
-			"dependsOn": [],
-			"location": "centralindia"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/wssparkpool')]",
-			"type": "Microsoft.Synapse/workspaces/bigDataPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"autoPause": {
-					"enabled": true,
-					"delayInMinutes": 15
-				},
-				"autoScale": {
-					"enabled": false,
-					"maxNodeCount": 10,
-					"minNodeCount": 3
-				},
-				"nodeCount": 3,
-				"nodeSize": "Small",
-				"nodeSizeFamily": "MemoryOptimized",
-				"sparkVersion": "3.5",
-				"isComputeIsolationEnabled": false,
-				"sessionLevelPackagesEnabled": false,
-				"annotations": []
-			},
-			"dependsOn": [],
-			"location": "centralindia"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/amandedicatedpool')]",
-			"type": "Microsoft.Synapse/workspaces/sqlPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"collation": "SQL_Latin1_General_CP1_CI_AS",
-				"maxSizeBytes": 263882790666240,
-				"annotations": []
-			},
-			"dependsOn": [],
-			"location": "centralindia"
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/Notebook2')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -618,7 +466,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "5fe946a2-874b-4bfd-8062-1e4393f13621"
+						"spark.autotune.trackingId": "6b8e0b00-5a1f-47f0-91fd-52832c6f57e8"
 					}
 				},
 				"metadata": {
@@ -715,6 +563,156 @@
 				]
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/spark-demo-synapse')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "wssparkpool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "0440aa12-f239-4cc8-8329-4a409f7dabfd"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/8769c5f8-5236-4604-adea-b1ffa8744449/resourceGroups/rg_azure_practice/providers/Microsoft.Synapse/workspaces/ws-practice-synapse/bigDataPools/wssparkpool",
+						"name": "wssparkpool",
+						"type": "Spark",
+						"endpoint": "https://ws-practice-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/wssparkpool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.5",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"from pyspark.sql import SparkSession\n",
+							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType\n",
+							"\n",
+							"# Sample data\n",
+							"data = [\n",
+							"    (1, \"John\", \"Doe\", 28),\n",
+							"    (2, \"Jane\", \"Smith\", 35),\n",
+							"    (3, \"Aman\", \"Verma\", 30),\n",
+							"    (4, \"Rahul\", \"Mehta\", 42),\n",
+							"    (5, \"Sneha\", \"Sharma\", 26)\n",
+							"]\n",
+							"\n",
+							"# Schema\n",
+							"schema = StructType([\n",
+							"    StructField(\"id\", IntegerType(), True),\n",
+							"    StructField(\"first_name\", StringType(), True),\n",
+							"    StructField(\"last_name\", StringType(), True),\n",
+							"    StructField(\"age\", IntegerType(), True)\n",
+							"])\n",
+							"\n",
+							"# Create DataFrame\n",
+							"df = spark.createDataFrame(data, schema)\n",
+							"\n",
+							"# Show data\n",
+							"df.show()\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 1
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SynpSparkPool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 3,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.5",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralindia"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/wssparkpool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": false,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 3,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.5",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralindia"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/amandedicatedpool')]",
+			"type": "Microsoft.Synapse/workspaces/sqlPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"maxSizeBytes": 263882790666240,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "centralindia"
 		}
 	]
 }
