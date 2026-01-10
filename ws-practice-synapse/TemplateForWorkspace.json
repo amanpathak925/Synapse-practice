@@ -45,7 +45,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"notebook": {
-								"referenceName": "spark-demo-synapse",
+								"referenceName": "Notebook2",
 								"type": "NotebookReference"
 							},
 							"snapshot": true,
@@ -70,7 +70,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('workspaceId'), '/notebooks/spark-demo-synapse')]",
+				"[concat(variables('workspaceId'), '/notebooks/Notebook2')]",
 				"[concat(variables('workspaceId'), '/bigDataPools/wssparkpool')]"
 			]
 		},
@@ -467,7 +467,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "1272ec0d-be0d-4be3-bb7e-b3579bbe1ac4"
+						"spark.autotune.trackingId": "9e0fc5a1-f073-44ef-ae96-75700f34b0db"
 					}
 				},
 				"metadata": {
@@ -492,15 +492,13 @@
 						"sparkVersion": "3.5",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28,
-						"automaticScaleJobs": false
+						"memory": 28
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"from pyspark.sql.functions import col, current_timestamp\n",
 							"from pyspark.sql.types import IntegerType\n",
@@ -521,11 +519,10 @@
 							"print(\"Total records read:\", df.count())"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"# -------------------------------\n",
 							"# TRANSFORM\n",
@@ -544,7 +541,6 @@
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"# -------------------------------\n",
 							"# WRITE OUTPUT\n",
