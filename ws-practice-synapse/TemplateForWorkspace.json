@@ -466,7 +466,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "0440aa12-f239-4cc8-8329-4a409f7dabfd"
+						"spark.autotune.trackingId": "d0dfd052-b296-4acb-89ba-129256b68ff3"
 					}
 				},
 				"metadata": {
@@ -491,13 +491,15 @@
 						"sparkVersion": "3.5",
 						"nodeCount": 3,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"from pyspark.sql import SparkSession\n",
 							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType\n",
@@ -594,6 +596,125 @@
 			},
 			"dependsOn": [],
 			"location": "centralindia"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook2')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "wssparkpool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "5fe946a2-874b-4bfd-8062-1e4393f13621"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/8769c5f8-5236-4604-adea-b1ffa8744449/resourceGroups/rg_azure_practice/providers/Microsoft.Synapse/workspaces/ws-practice-synapse/bigDataPools/wssparkpool",
+						"name": "wssparkpool",
+						"type": "Spark",
+						"endpoint": "https://ws-practice-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/wssparkpool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.5",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"from pyspark.sql.functions import col, current_timestamp\n",
+							"from pyspark.sql.types import IntegerType\n",
+							"\n",
+							"# -------------------------------\n",
+							"# READ ALL FILES FROM FOLDER\n",
+							"# -------------------------------\n",
+							"input_path = \"abfss://raw@synapsedemo.dfs.core.windows.net/people/\"\n",
+							"output_path = \"abfss://curated@synapsedemo.dfs.core.windows.net/people_parquet/\"\n",
+							"\n",
+							"df = (\n",
+							"    spark.read\n",
+							"    .option(\"header\", \"true\")\n",
+							"    .option(\"inferSchema\", \"true\")\n",
+							"    .csv(input_path)\n",
+							")\n",
+							"\n",
+							"print(\"Total records read:\", df.count())"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# -------------------------------\n",
+							"# TRANSFORM\n",
+							"# -------------------------------\n",
+							"df_clean = (\n",
+							"    df\n",
+							"    .withColumnRenamed(\"First Name\", \"first_name\")\n",
+							"    .withColumnRenamed(\"Last Name\", \"last_name\")\n",
+							"    .withColumn(\"Age\", col(\"Age\").cast(IntegerType()))\n",
+							"    .filter(col(\"Age\").isNotNull())\n",
+							"    .withColumn(\"ingestion_time\", current_timestamp())\n",
+							")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# -------------------------------\n",
+							"# WRITE OUTPUT\n",
+							"# -------------------------------\n",
+							"(\n",
+							"    df_clean\n",
+							"    .write\n",
+							"    .mode(\"overwrite\")\n",
+							"    .parquet(output_path)\n",
+							")\n",
+							"\n",
+							"print(\"Data written to curated zone\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
 		}
 	]
 }
